@@ -1,19 +1,24 @@
-// Mapping data for BS to AD conversion (similar to your database data)
-const bsadMapping = [
-    { id: 1, bs_month: 1, bs_year: 2081, ad_month_start: new Date(2024, 3, 13) }, // April 13, 2024
-    { id: 2, bs_month: 2, bs_year: 2081, ad_month_start: new Date(2024, 4, 14) }, // May 14, 2024
-    { id: 3, bs_month: 3, bs_year: 2081, ad_month_start: new Date(2024, 5, 15) }, // June 15, 2024
-    { id: 4, bs_month: 4, bs_year: 2081, ad_month_start: new Date(2024, 6, 16) }, // July 16, 2024
-    { id: 5, bs_month: 5, bs_year: 2081, ad_month_start: new Date(2024, 7, 17) }, // August 17, 2024
-    { id: 6, bs_month: 6, bs_year: 2081, ad_month_start: new Date(2024, 8, 17) }, // September 17, 2024
-    { id: 7, bs_month: 7, bs_year: 2081, ad_month_start: new Date(2024, 9, 17) }, // October 17, 2024
-    { id: 8, bs_month: 8, bs_year: 2081, ad_month_start: new Date(2024, 10, 16) }, // November 16, 2024
-    { id: 9, bs_month: 9, bs_year: 2081, ad_month_start: new Date(2024, 11, 16) }, // December 16, 2024
-    { id: 10, bs_month: 10, bs_year: 2081, ad_month_start: new Date(2025, 0, 14) }, // January 14, 2025
-    { id: 11, bs_month: 11, bs_year: 2081, ad_month_start: new Date(2025, 1, 13) }, // February 13, 2025
-    { id: 12, bs_month: 12, bs_year: 2081, ad_month_start: new Date(2025, 2, 14) }, // March 14, 2025
-    { id: 13, bs_month: 1, bs_year: 2082, ad_month_start: new Date(2025, 3, 14) }  // April 14, 2025
-];
+// Mapping data for BS to AD conversion in nested object format
+const bsadMapping = { 
+    2081: { 
+        1: [2024, 3, 13], // Baisakh 2081 = April 13, 2024 
+        2: [2024, 4, 14], // Jestha 2081 = May 14, 2024 
+        3: [2024, 5, 15], // Ashadh 2081 = June 15, 2024 
+        4: [2024, 6, 16], // Shrawan 2081 = July 16, 2024 
+        5: [2024, 7, 17], // Bhadra 2081 = August 17, 2024 
+        6: [2024, 8, 17], // Ashwin 2081 = September 17, 2024 
+        7: [2024, 9, 17], // Kartik 2081 = October 17, 2024 
+        8: [2024, 10, 16], // Mangsir 2081 = November 16, 2024 
+        9: [2024, 11, 16], // Poush 2081 = December 16, 2024 
+        10: [2025, 0, 14], // Magh 2081 = January 14, 2025 
+        11: [2025, 1, 13], // Falgun 2081 = February 13, 2025 
+        12: [2025, 2, 14] // Chaitra 2081 = March 14, 2025 
+    }, 
+    2082: { 
+        1: [2025, 3, 14] // Baisakh 2082 = April 14, 2025 
+        // Additional months can be added as needed 
+    }
+};
 
 // Nepali month names
 const bsMonthNames = [
@@ -59,69 +64,102 @@ function updateTodayInfo() {
     document.getElementById('today-info').innerText = todayInfo;
 }
 
-function getDaysInBSMonth(bs_month, bs_year) {
-    const mapping = bsadMapping.find(m => m.bs_month === bs_month && m.bs_year === bs_year);
-    if (!mapping) return null;
-    
-    // Find the next month's mapping
-    const nextMonth = bs_month % 12 + 1;
-    const nextYear = bs_month < 12 ? bs_year : bs_year + 1;
-    const nextMapping = bsadMapping.find(m => m.bs_month === nextMonth && m.bs_year === nextYear);
-    
-    if (nextMapping) {
-        // Calculate the difference in days
-        const diffTime = nextMapping.ad_month_start - mapping.ad_month_start;
-        return Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    } else {
-        // Default to 30 days if next month mapping isn't available
-        return 30;
+function getADDateFromBSData(bs_year, bs_month, bs_day) {
+    if (!bsadMapping[bs_year] || !bsadMapping[bs_year][bs_month]) {
+        return null;
     }
-}
-
-function bsToAD(bs_year, bs_month, bs_day) {
-    // Get the mapping for the requested BS date
-    const mapping = bsadMapping.find(m => m.bs_month === bs_month && m.bs_year === bs_year);
-    if (!mapping) return null;
     
-    // Calculate the AD date
-    const adDate = new Date(mapping.ad_month_start);
+    const [year, month, day] = bsadMapping[bs_year][bs_month];
+    const adDate = new Date(year, month, day);
     adDate.setDate(adDate.getDate() + bs_day - 1);
     return adDate;
 }
 
+function getDaysInBSMonth(bs_month, bs_year) {
+    if (!bsadMapping[bs_year] || !bsadMapping[bs_year][bs_month]) {
+        return null;
+    }
+    
+    // Find the next month's mapping
+    let nextMonth = bs_month % 12 + 1;
+    let nextYear = bs_month < 12 ? bs_year : bs_year + 1;
+    
+    // If next month data is available
+    if (bsadMapping[nextYear] && bsadMapping[nextYear][nextMonth]) {
+        const currentMonthDate = getADDateFromBSData(bs_year, bs_month, 1);
+        const nextMonthDate = getADDateFromBSData(nextYear, nextMonth, 1);
+        
+        if (currentMonthDate && nextMonthDate) {
+            const diffTime = nextMonthDate - currentMonthDate;
+            return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        }
+    }
+    
+    // Default to 30 days if next month mapping isn't available
+    return 30;
+}
+
+function bsToAD(bs_year, bs_month, bs_day) {
+    return getADDateFromBSData(bs_year, bs_month, bs_day);
+}
+
 function adToBS(adDate) {
-    // Find the latest mapping where ad_month_start is before or equal to the given date
-    const mappingArray = [...bsadMapping];
-    mappingArray.sort((a, b) => b.ad_month_start - a.ad_month_start);
+    // Find the BS date for the given AD date
+    for (const bs_year in bsadMapping) {
+        for (const bs_month in bsadMapping[bs_year]) {
+            // Get the first day of the BS month in AD calendar
+            const [year, month, day] = bsadMapping[bs_year][bs_month];
+            const bsMonthStartInAD = new Date(year, month, day);
+            
+            // Find the next month's start date to determine the end of this month
+            let nextMonth = parseInt(bs_month) % 12 + 1;
+            let nextYear = parseInt(bs_month) < 12 ? parseInt(bs_year) : parseInt(bs_year) + 1;
+            
+            let bsMonthEndInAD;
+            if (bsadMapping[nextYear] && bsadMapping[nextYear][nextMonth]) {
+                const [nextYear_, nextMonth_, nextDay_] = bsadMapping[nextYear][nextMonth];
+                bsMonthEndInAD = new Date(nextYear_, nextMonth_, nextDay_);
+                bsMonthEndInAD.setDate(bsMonthEndInAD.getDate() - 1);
+            } else {
+                // If next month data isn't available, estimate with 30 days
+                bsMonthEndInAD = new Date(bsMonthStartInAD);
+                bsMonthEndInAD.setDate(bsMonthEndInAD.getDate() + 29);
+            }
+            
+            // Check if adDate falls within this BS month
+            if (adDate >= bsMonthStartInAD && adDate <= bsMonthEndInAD) {
+                const diffTime = adDate - bsMonthStartInAD;
+                const bs_day = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                
+                return {
+                    bs_day: bs_day,
+                    bs_month: parseInt(bs_month),
+                    bs_year: parseInt(bs_year)
+                };
+            }
+        }
+    }
     
-    const mapping = mappingArray.find(m => m.ad_month_start <= adDate);
-    if (!mapping) return null;
-    
-    // Calculate the BS day
-    const diffTime = adDate - mapping.ad_month_start;
-    const bs_day = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
-    
-    return {
-        bs_day: bs_day,
-        bs_month: mapping.bs_month,
-        bs_year: mapping.bs_year
-    };
+    return null;
 }
 
 function getADDateRangeForBSMonth(bs_year, bs_month) {
-    const mapping = bsadMapping.find(m => m.bs_month === bs_month && m.bs_year === bs_year);
-    if (!mapping) return { start: null, end: null };
+    if (!bsadMapping[bs_year] || !bsadMapping[bs_year][bs_month]) {
+        return { start: null, end: null };
+    }
     
-    const start = new Date(mapping.ad_month_start);
+    // Start date
+    const [year, month, day] = bsadMapping[bs_year][bs_month];
+    const start = new Date(year, month, day);
     
-    // Find the next month's mapping
-    const nextMonth = bs_month % 12 + 1;
-    const nextYear = bs_month < 12 ? bs_year : bs_year + 1;
-    const nextMapping = bsadMapping.find(m => m.bs_month === nextMonth && m.bs_year === nextYear);
+    // End date - find the next month's start date and subtract 1 day
+    let nextMonth = bs_month % 12 + 1;
+    let nextYear = bs_month < 12 ? bs_year : bs_year + 1;
     
     let end;
-    if (nextMapping) {
-        end = new Date(nextMapping.ad_month_start);
+    if (bsadMapping[nextYear] && bsadMapping[nextYear][nextMonth]) {
+        const [nextYear_, nextMonth_, nextDay_] = bsadMapping[nextYear][nextMonth];
+        end = new Date(nextYear_, nextMonth_, nextDay_);
         end.setDate(end.getDate() - 1);
     } else {
         // Default to 30 days if next month mapping isn't available
@@ -260,7 +298,6 @@ document.getElementById('bs-year').addEventListener('change', function() {
     const bs_month = parseInt(document.getElementById('bs-month').value);
     updateCalendar(bs_year, bs_month);
 });
-
 function updateCalendar(bs_year, bs_month) {
     // Update calendar title
     document.getElementById('calendar-title').innerText = `BS Calendar - ${bsMonthNames[bs_month-1]} ${bs_year}`;
