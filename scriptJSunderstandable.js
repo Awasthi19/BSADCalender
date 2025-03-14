@@ -191,7 +191,8 @@ function getADDateFromBSData(bs_year, bs_month, bs_day) {
     }
     
     const [year, month, day] = bsadMapping[bs_year][bs_month];
-    const adDate = new Date(year, month, day);
+    // Subtract 1 from month to adjust for JavaScript's 0-indexed months
+    const adDate = new Date(year, month - 1, day);
     adDate.setDate(adDate.getDate() + bs_day - 1);
     return adDate;
 }
@@ -230,7 +231,8 @@ function adToBS(adDate) {
         for (const bs_month in bsadMapping[bs_year]) {
             // Get the first day of the BS month in AD calendar
             const [year, month, day] = bsadMapping[bs_year][bs_month];
-            const bsMonthStartInAD = new Date(year, month, day);
+            // Subtract 1 from month to adjust for JavaScript's 0-indexed months
+            const bsMonthStartInAD = new Date(year, month - 1, day);
             
             // Find the next month's start date to determine the end of this month
             let nextMonth = parseInt(bs_month) % 12 + 1;
@@ -239,7 +241,8 @@ function adToBS(adDate) {
             let bsMonthEndInAD;
             if (bsadMapping[nextYear] && bsadMapping[nextYear][nextMonth]) {
                 const [nextYear_, nextMonth_, nextDay_] = bsadMapping[nextYear][nextMonth];
-                bsMonthEndInAD = new Date(nextYear_, nextMonth_, nextDay_);
+                // Subtract 1 from month to adjust for JavaScript's 0-indexed months
+                bsMonthEndInAD = new Date(nextYear_, nextMonth_ - 1, nextDay_);
                 bsMonthEndInAD.setDate(bsMonthEndInAD.getDate() - 1);
             } else {
                 // If next month data isn't available, estimate with 30 days
@@ -271,7 +274,8 @@ function getADDateRangeForBSMonth(bs_year, bs_month) {
     
     // Start date
     const [year, month, day] = bsadMapping[bs_year][bs_month];
-    const start = new Date(year, month, day);
+    // Subtract 1 from month to adjust for JavaScript's 0-indexed months
+    const start = new Date(year, month - 1, day);
     
     // End date - find the next month's start date and subtract 1 day
     let nextMonth = bs_month % 12 + 1;
@@ -280,7 +284,8 @@ function getADDateRangeForBSMonth(bs_year, bs_month) {
     let end;
     if (bsadMapping[nextYear] && bsadMapping[nextYear][nextMonth]) {
         const [nextYear_, nextMonth_, nextDay_] = bsadMapping[nextYear][nextMonth];
-        end = new Date(nextYear_, nextMonth_, nextDay_);
+        // Subtract 1 from month to adjust for JavaScript's 0-indexed months
+        end = new Date(nextYear_, nextMonth_ - 1, nextDay_);
         end.setDate(end.getDate() - 1);
     } else {
         // Default to 30 days if next month mapping isn't available
@@ -290,6 +295,8 @@ function getADDateRangeForBSMonth(bs_year, bs_month) {
     
     return { start, end };
 }
+
+
 
 function convertBStoAD() {
     const bs_year = parseInt(document.getElementById('bs-year').value);

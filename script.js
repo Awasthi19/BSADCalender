@@ -2,7 +2,9 @@ const bsadMapping={2078:{1:[2021,4,14],2:[2021,5,15],3:[2021,6,15],4:[2021,7,16]
 // Nepali month names
 function setDefaultDates(){const e=new Date;document.getElementById("ad-date").valueAsDate=e;
 // Set the BS date selector to the current date in BS
-const t=adToBS(e);t&&(document.getElementById("bs-year").value=t.bs_year,document.getElementById("bs-month").value=t.bs_month,document.getElementById("bs-day").value=t.bs_day)}function updateTodayInfo(){const e=new Date,t=e.toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"}),n=adToBS(e);let a=`Today: ${t}`;n&&(a+=` / BS ${n.bs_day} ${bsMonthNames[n.bs_month-1]} ${n.bs_year}`),document.getElementById("today-info").innerText=a}function getADDateFromBSData(e,t,n){if(!bsadMapping[e]||!bsadMapping[e][t])return null;const[a,s,o]=bsadMapping[e][t],d=new Date(a,s,o);return d.setDate(d.getDate()+n-1),d}function getDaysInBSMonth(e,t){if(!bsadMapping[t]||!bsadMapping[t][e])return null;
+const t=adToBS(e);t&&(document.getElementById("bs-year").value=t.bs_year,document.getElementById("bs-month").value=t.bs_month,document.getElementById("bs-day").value=t.bs_day)}function updateTodayInfo(){const e=new Date,t=e.toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"}),n=adToBS(e);let a=`Today: ${t}`;n&&(a+=` / BS ${n.bs_day} ${bsMonthNames[n.bs_month-1]} ${n.bs_year}`),document.getElementById("today-info").innerText=a}function getADDateFromBSData(e,t,n){if(!bsadMapping[e]||!bsadMapping[e][t])return null;const[a,s,o]=bsadMapping[e][t],d=new Date(a,s-1,o);
+// Subtract 1 from month to adjust for JavaScript's 0-indexed months
+return d.setDate(d.getDate()+n-1),d}function getDaysInBSMonth(e,t){if(!bsadMapping[t]||!bsadMapping[t][e])return null;
 // Find the next month's mapping
 let n=e%12+1,a=e<12?t:t+1;
 // If next month data is available
@@ -12,17 +14,23 @@ return 30}function bsToAD(e,t,n){return getADDateFromBSData(e,t,n)}function adTo
 // Find the BS date for the given AD date
 for(const t in bsadMapping)for(const n in bsadMapping[t]){
 // Get the first day of the BS month in AD calendar
-const[a,s,o]=bsadMapping[t][n],d=new Date(a,s,o);
+const[a,s,o]=bsadMapping[t][n],d=new Date(a,s-1,o);
+// Subtract 1 from month to adjust for JavaScript's 0-indexed months
 // Find the next month's start date to determine the end of this month
-let r,l=parseInt(n)%12+1,i=parseInt(n)<12?parseInt(t):parseInt(t)+1;if(bsadMapping[i]&&bsadMapping[i][l]){const[e,t,n]=bsadMapping[i][l];r=new Date(e,t,n),r.setDate(r.getDate()-1)}else
+let r,l=parseInt(n)%12+1,i=parseInt(n)<12?parseInt(t):parseInt(t)+1;if(bsadMapping[i]&&bsadMapping[i][l]){const[e,t,n]=bsadMapping[i][l];
+// Subtract 1 from month to adjust for JavaScript's 0-indexed months
+r=new Date(e,t-1,n),r.setDate(r.getDate()-1)}else
 // If next month data isn't available, estimate with 30 days
 r=new Date(d),r.setDate(r.getDate()+29);
 // Check if adDate falls within this BS month
 if(e>=d&&e<=r){const a=e-d;return{bs_day:Math.floor(a/864e5)+1,bs_month:parseInt(n),bs_year:parseInt(t)}}}return null}function getADDateRangeForBSMonth(e,t){if(!bsadMapping[e]||!bsadMapping[e][t])return{start:null,end:null};
 // Start date
-const[n,a,s]=bsadMapping[e][t],o=new Date(n,a,s);
+const[n,a,s]=bsadMapping[e][t],o=new Date(n,a-1,s);
+// Subtract 1 from month to adjust for JavaScript's 0-indexed months
 // End date - find the next month's start date and subtract 1 day
-let d,r=t%12+1,l=t<12?e:e+1;if(bsadMapping[l]&&bsadMapping[l][r]){const[e,t,n]=bsadMapping[l][r];d=new Date(e,t,n),d.setDate(d.getDate()-1)}else
+let d,r=t%12+1,l=t<12?e:e+1;if(bsadMapping[l]&&bsadMapping[l][r]){const[e,t,n]=bsadMapping[l][r];
+// Subtract 1 from month to adjust for JavaScript's 0-indexed months
+d=new Date(e,t-1,n),d.setDate(d.getDate()-1)}else
 // Default to 30 days if next month mapping isn't available
 d=new Date(o),d.setDate(d.getDate()+29);return{start:o,end:d}}function convertBStoAD(){const e=parseInt(document.getElementById("bs-year").value),t=parseInt(document.getElementById("bs-month").value),n=parseInt(document.getElementById("bs-day").value),a=getDaysInBSMonth(t,e);if(n<1||n>a)return document.getElementById("bs-to-ad-result").innerText=`Invalid day. ${bsMonthNames[t-1]} ${e} has ${a} days.`,void(document.getElementById("bs-to-ad-result").style.display="block");const s=bsToAD(e,t,n);if(s){const a=s.toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric",weekday:"long"});document.getElementById("bs-to-ad-result").innerText=`BS ${n} ${bsMonthNames[t-1]} ${e} = ${a}`,document.getElementById("bs-to-ad-result").style.display="block"}else document.getElementById("bs-to-ad-result").innerText="Conversion failed. Please check your input.",document.getElementById("bs-to-ad-result").style.display="block"}function convertADtoBS(){const e=document.getElementById("ad-date").value;if(!e)return document.getElementById("ad-to-bs-result").innerText="Please select a date.",void(document.getElementById("ad-to-bs-result").style.display="block");const t=new Date(e),n=adToBS(t);if(n){const e=`BS ${n.bs_day} ${bsMonthNames[n.bs_month-1]} ${n.bs_year}`;document.getElementById("ad-to-bs-result").innerText=`${t.toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric",weekday:"long"})} = ${e}`,document.getElementById("ad-to-bs-result").style.display="block"}else document.getElementById("ad-to-bs-result").innerText="Conversion failed. Date may be out of supported range.",document.getElementById("ad-to-bs-result").style.display="block"}function renderBSCalendar(){
 // Get current BS date
