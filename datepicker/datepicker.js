@@ -202,10 +202,11 @@ function initializeBSDatepicker(inputId, callback) {
                     cell.className = dayCount === currentBSDate.bs_day && 
                                    bs_month === currentBSDate.bs_month && 
                                    bs_year === currentBSDate.bs_year ? 'current-day' : '';
+                    let currentDay = dayCount; // Capture the current day value
                     cell.addEventListener('click', () => {
-                        currentBSDate = { bs_year, bs_month, bs_day: dayCount };
-                        const adDate = bsToAD(bs_year, bs_month, dayCount);
-                        input.value = `${bs_year}-${String(bs_month).padStart(2, '0')}-${String(dayCount).padStart(2, '0')}`;
+                        currentBSDate = { bs_year, bs_month, bs_day: currentDay };
+                        const adDate = bsToAD(bs_year, bs_month, currentDay);
+                        input.value = `${bs_year}-${String(bs_month).padStart(2, '0')}-${String(currentDay).padStart(2, '0')}`;
                         datepicker.style.display = 'none';
                         if (callback) callback({ ...currentBSDate, adDate });
                     });
