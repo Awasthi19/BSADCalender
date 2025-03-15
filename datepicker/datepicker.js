@@ -1,4 +1,3 @@
-// BS to AD mapping
 const bsadMapping = {
     2000: [14, 14, 15, 16, 17, 17, 17, 16, 16, 14, 13, 13],
     2001: [13, 14, 14, 16, 16, 16, 17, 16, 15, 14, 12, 14],
@@ -91,76 +90,29 @@ const bsadMapping = {
     2088: [16, 16, 16, 18, 19, 18, 19, 18, 18, 16, 15, 16],
 };
 
-// Nepali month names
 const bsMonthNames = [
     "Baisakh", "Jestha", "Ashadh", "Shrawan", "Bhadra", "Ashwin",
     "Kartik", "Mangsir", "Poush", "Magh", "Falgun", "Chaitra"
 ];
 
-// Initialize the page
-window.onload = function() {
-    setDefaultDates();
-    updateTodayInfo();
-    renderBSCalendar();
-};
-
-function setDefaultDates() {
-    const today = new Date();
-    document.getElementById('ad-date').valueAsDate = today;
-    
-    const bsDate = adToBS(today);
-    if (bsDate) {
-        document.getElementById('bs-year').value = bsDate.bs_year;
-        document.getElementById('bs-month').value = bsDate.bs_month;
-        document.getElementById('bs-day').value = bsDate.bs_day;
-    }
-}
-
-function updateTodayInfo() {
-    const today = new Date();
-    const formattedAD = today.toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric' 
-    });
-    
-    const bsDate = adToBS(today);
-    let todayInfo = `Today: ${formattedAD}`;
-    
-    if (bsDate) {
-        todayInfo += ` / BS ${bsDate.bs_day} ${bsMonthNames[bsDate.bs_month-1]} ${bsDate.bs_year}`;
-    }
-    
-    document.getElementById('today-info').innerText = todayInfo;
-}
-
 function getADDateFromBSData(bs_year, bs_month, bs_day) {
-    if (!bsadMapping[bs_year] || bs_month < 1 || bs_month > 12) {
-        return null;
-    }
-
+    if (!bsadMapping[bs_year] || bs_month < 1 || bs_month > 12) return null;
     const baseADYear = bs_year - 57;
     const dayOfMonth = bsadMapping[bs_year][bs_month - 1];
     const adMonth = (bs_month + 2) % 12;
     const adYear = adMonth >= 3 ? baseADYear : baseADYear + 1;
-
     const adDate = new Date(adYear, adMonth, dayOfMonth);
     adDate.setDate(adDate.getDate() + bs_day - 1);
     return adDate;
 }
 
 function getDaysInBSMonth(bs_month, bs_year) {
-    if (!bsadMapping[bs_year] || bs_month < 1 || bs_month > 12) {
-        return null;
-    }
-
+    if (!bsadMapping[bs_year] || bs_month < 1 || bs_month > 12) return null;
     let nextMonth = bs_month % 12 + 1;
     let nextYear = bs_month < 12 ? bs_year : bs_year + 1;
-
     if (bsadMapping[nextYear] && bsadMapping[nextYear][nextMonth - 1]) {
         const currentMonthDate = getADDateFromBSData(bs_year, bs_month, 1);
         const nextMonthDate = getADDateFromBSData(nextYear, nextMonth, 1);
-        
         if (currentMonthDate && nextMonthDate) {
             const diffTime = nextMonthDate - currentMonthDate;
             return Math.floor(diffTime / (1000 * 60 * 60 * 24));
@@ -177,10 +129,8 @@ function adToBS(adDate) {
     for (const bs_year in bsadMapping) {
         for (let bs_month = 1; bs_month <= 12; bs_month++) {
             const bsMonthStartInAD = getADDateFromBSData(bs_year, bs_month, 1);
-            
             let nextMonth = bs_month % 12 + 1;
             let nextYear = bs_month < 12 ? parseInt(bs_year) : parseInt(bs_year) + 1;
-            
             let bsMonthEndInAD;
             if (bsadMapping[nextYear] && bsadMapping[nextYear][nextMonth - 1]) {
                 bsMonthEndInAD = getADDateFromBSData(nextYear, nextMonth, 1);
@@ -189,11 +139,9 @@ function adToBS(adDate) {
                 bsMonthEndInAD = new Date(bsMonthStartInAD);
                 bsMonthEndInAD.setDate(bsMonthEndInAD.getDate() + 29);
             }
-            
             if (adDate >= bsMonthStartInAD && adDate <= bsMonthEndInAD) {
                 const diffTime = adDate - bsMonthStartInAD;
                 const bs_day = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
-                
                 return {
                     bs_day: bs_day,
                     bs_month: bs_month,
@@ -205,193 +153,114 @@ function adToBS(adDate) {
     return null;
 }
 
-function getADDateRangeForBSMonth(bs_year, bs_month) {
-    if (!bsadMapping[bs_year] || bs_month < 1 || bs_month > 12) {
-        return { start: null, end: null };
-    }
-    
-    const start = getADDateFromBSData(bs_year, bs_month, 1);
-    
-    let nextMonth = bs_month % 12 + 1;
-    let nextYear = bs_month < 12 ? bs_year : bs_year + 1;
-    
-    let end;
-    if (bsadMapping[nextYear] && bsadMapping[nextYear][nextMonth - 1]) {
-        end = getADDateFromBSData(nextYear, nextMonth, 1);
-        end.setDate(end.getDate() - 1);
-    } else {
-        end = new Date(start);
-        end.setDate(end.getDate() + 29);
-    }
-    
-    return { start, end };
-}
+function initializeBSDatepicker(inputId, callback) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
 
-function convertBStoAD() {
-    const bs_year = parseInt(document.getElementById('bs-year').value);
-    const bs_month = parseInt(document.getElementById('bs-month').value);
-    const bs_day = parseInt(document.getElementById('bs-day').value);
+    // Create datepicker container
+    const template = document.createElement('template');
+    template.innerHTML = document.querySelector('link[rel="import"]')?.import?.body.innerHTML || 
+        document.querySelector('script[type="text/html"]')?.textContent || 
+        '<div class="bs-datepicker" style="display: none;">' +
+        '<div class="datepicker-header">' +
+        '<button class="prev-year">&lt;&lt;</button>' +
+        '<button class="prev-month">&lt;</button>' +
+        '<span class="month-year"></span>' +
+        '<button class="next-month">&gt;</button>' +
+        '<button class="next-year">&gt;&gt;</button>' +
+        '</div>' +
+        '<table class="datepicker-table">' +
+        '<thead><tr><th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th></tr></thead>' +
+        '<tbody class="datepicker-body"></tbody>' +
+        '</table></div>';
     
-    const daysInMonth = getDaysInBSMonth(bs_month, bs_year);
-    if (bs_day < 1 || bs_day > daysInMonth) {
-        document.getElementById('bs-to-ad-result').innerText = `Invalid day. ${bsMonthNames[bs_month-1]} ${bs_year} has ${daysInMonth} days.`;
-        document.getElementById('bs-to-ad-result').style.display = 'block';
-        return;
-    }
-    
-    const adDate = bsToAD(bs_year, bs_month, bs_day);
-    if (adDate) {
-        const formattedDate = adDate.toLocaleDateString('en-US', { 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric',
-            weekday: 'long'
-        });
-        document.getElementById('bs-to-ad-result').innerText = `BS ${bs_day} ${bsMonthNames[bs_month-1]} ${bs_year} = ${formattedDate}`;
-        document.getElementById('bs-to-ad-result').style.display = 'block';
-    } else {
-        document.getElementById('bs-to-ad-result').innerText = "Conversion failed. Please check your input.";
-        document.getElementById('bs-to-ad-result').style.display = 'block';
-    }
-}
+    const datepicker = template.content.firstChild.cloneNode(true);
+    document.body.appendChild(datepicker);
 
-function convertADtoBS() {
-    const adDateInput = document.getElementById('ad-date').value;
-    if (!adDateInput) {
-        document.getElementById('ad-to-bs-result').innerText = "Please select a date.";
-        document.getElementById('ad-to-bs-result').style.display = 'block';
-        return;
-    }
+    let currentBSDate = adToBS(new Date()) || { bs_year: 2081, bs_month: 1, bs_day: 1 };
     
-    const adDate = new Date(adDateInput);
-    const bsDate = adToBS(adDate);
-    
-    if (bsDate) {
-        const formattedDate = `BS ${bsDate.bs_day} ${bsMonthNames[bsDate.bs_month-1]} ${bsDate.bs_year}`;
-        document.getElementById('ad-to-bs-result').innerText = `${adDate.toLocaleDateString('en-US', { 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric',
-            weekday: 'long'
-        })} = ${formattedDate}`;
-        document.getElementById('ad-to-bs-result').style.display = 'block';
-    } else {
-        document.getElementById('ad-to-bs-result').innerText = "Conversion failed. Date may be out of supported range.";
-        document.getElementById('ad-to-bs-result').style.display = 'block';
-    }
-}
-
-function renderBSCalendar() {
-    const today = new Date();
-    const currentBSDate = adToBS(today);
-    
-    if (!currentBSDate) return;
-    
-    const bs_year = currentBSDate.bs_year;
-    const bs_month = currentBSDate.bs_month;
-    
-    document.getElementById('calendar-title').innerText = `BS Calendar - ${bsMonthNames[bs_month-1]} ${bs_year}`;
-    
-    const dateRange = getADDateRangeForBSMonth(bs_year, bs_month);
-    if (!dateRange.start || !dateRange.end) return;
-    
-    const startDate = dateRange.start;
-    const daysInMonth = getDaysInBSMonth(bs_month, bs_year);
-    
-    const startDay = startDate.getDay();
-    
-    let calendarHTML = '';
-    let dayCount = 1;
-    
-    for (let i = 0; i < 6; i++) {
-        if (dayCount > daysInMonth) break;
+    function renderCalendar(bs_year, bs_month) {
+        const monthYear = datepicker.querySelector('.month-year');
+        monthYear.textContent = `${bsMonthNames[bs_month-1]} ${bs_year}`;
         
-        calendarHTML += '<tr>';
+        const tbody = datepicker.querySelector('.datepicker-body');
+        tbody.innerHTML = '';
         
-        for (let j = 0; j < 7; j++) {
-            if ((i === 0 && j < startDay) || dayCount > daysInMonth) {
-                calendarHTML += '<td class="other-month"></td>';
-            } else {
-                const isCurrentDay = dayCount === currentBSDate.bs_day;
-                const cellClass = isCurrentDay ? 'current-day' : '';
-                
-                const adDate = bsToAD(bs_year, bs_month, dayCount);
-                const adDayMonth = adDate ? adDate.getDate() + '/' + (adDate.getMonth() + 1) : '';
-                
-                calendarHTML += `<td class="${cellClass}">
-                    <div>${dayCount}</div>
-                    <div style="font-size: 0.8em; color: #666;">${adDayMonth}</div>
-                </td>`;
-                
-                dayCount++;
+        const startDate = getADDateFromBSData(bs_year, bs_month, 1);
+        const daysInMonth = getDaysInBSMonth(bs_month, bs_year);
+        const startDay = startDate.getDay();
+        
+        let dayCount = 1;
+        for (let i = 0; i < 6 && dayCount <= daysInMonth; i++) {
+            const row = document.createElement('tr');
+            for (let j = 0; j < 7; j++) {
+                const cell = document.createElement('td');
+                if ((i === 0 && j < startDay) || dayCount > daysInMonth) {
+                    cell.className = 'other-month';
+                } else {
+                    cell.textContent = dayCount;
+                    cell.className = dayCount === currentBSDate.bs_day && 
+                                   bs_month === currentBSDate.bs_month && 
+                                   bs_year === currentBSDate.bs_year ? 'current-day' : '';
+                    cell.addEventListener('click', () => {
+                        currentBSDate = { bs_year, bs_month, bs_day: dayCount };
+                        const adDate = bsToAD(bs_year, bs_month, dayCount);
+                        input.value = `${bs_year}-${String(bs_month).padStart(2, '0')}-${String(dayCount).padStart(2, '0')}`;
+                        datepicker.style.display = 'none';
+                        if (callback) callback({ ...currentBSDate, adDate });
+                    });
+                    dayCount++;
+                }
+                row.appendChild(cell);
             }
+            tbody.appendChild(row);
         }
-        
-        calendarHTML += '</tr>';
     }
-    
-    document.getElementById('calendar-body').innerHTML = calendarHTML;
-}
 
-// Event listeners for calendar controls
-if (document.getElementById('bs-month')) {
-    document.getElementById('bs-month').addEventListener('change', function() {
-        const bs_year = parseInt(document.getElementById('bs-year').value);
-        const bs_month = parseInt(this.value);
-        updateCalendar(bs_year, bs_month);
+    // Navigation
+    datepicker.querySelector('.prev-year').addEventListener('click', () => {
+        currentBSDate.bs_year--;
+        renderCalendar(currentBSDate.bs_year, currentBSDate.bs_month);
     });
 
-    document.getElementById('bs-year').addEventListener('change', function() {
-        const bs_year = parseInt(this.value);
-        const bs_month = parseInt(document.getElementById('bs-month').value);
-        updateCalendar(bs_year, bs_month);
+    datepicker.querySelector('.next-year').addEventListener('click', () => {
+        currentBSDate.bs_year++;
+        renderCalendar(currentBSDate.bs_year, currentBSDate.bs_month);
     });
-}
 
-function updateCalendar(bs_year, bs_month) {
-    document.getElementById('calendar-title').innerText = `BS Calendar - ${bsMonthNames[bs_month-1]} ${bs_year}`;
-    
-    const dateRange = getADDateRangeForBSMonth(bs_year, bs_month);
-    if (!dateRange.start || !dateRange.end) return;
-    
-    const startDate = dateRange.start;
-    const daysInMonth = getDaysInBSMonth(bs_month, bs_year);
-    
-    const startDay = startDate.getDay();
-    
-    let calendarHTML = '';
-    let dayCount = 1;
-    
-    const today = new Date();
-    const currentBSDate = adToBS(today);
-    const isCurrentMonth = currentBSDate && currentBSDate.bs_month === bs_month && currentBSDate.bs_year === bs_year;
-    
-    for (let i = 0; i < 6; i++) {
-        if (dayCount > daysInMonth) break;
-        
-        calendarHTML += '<tr>';
-        
-        for (let j = 0; j < 7; j++) {
-            if ((i === 0 && j < startDay) || dayCount > daysInMonth) {
-                calendarHTML += '<td class="other-month"></td>';
-            } else {
-                const isCurrentDay = isCurrentMonth && dayCount === currentBSDate.bs_day;
-                const cellClass = isCurrentDay ? 'current-day' : '';
-                
-                const adDate = bsToAD(bs_year, bs_month, dayCount);
-                const adDayMonth = adDate ? adDate.getDate() + '/' + (adDate.getMonth() + 1) : '';
-                
-                calendarHTML += `<td class="${cellClass}">
-                    <div>${dayCount}</div>
-                    <div style="font-size: 0.8em; color: #666;">${adDayMonth}</div>
-                </td>`;
-                
-                dayCount++;
-            }
+    datepicker.querySelector('.prev-month').addEventListener('click', () => {
+        currentBSDate.bs_month--;
+        if (currentBSDate.bs_month < 1) {
+            currentBSDate.bs_month = 12;
+            currentBSDate.bs_year--;
         }
-        
-        calendarHTML += '</tr>';
-    }
-    
-    document.getElementById('calendar-body').innerHTML = calendarHTML;
+        renderCalendar(currentBSDate.bs_year, currentBSDate.bs_month);
+    });
+
+    datepicker.querySelector('.next-month').addEventListener('click', () => {
+        currentBSDate.bs_month++;
+        if (currentBSDate.bs_month > 12) {
+            currentBSDate.bs_month = 1;
+            currentBSDate.bs_year++;
+        }
+        renderCalendar(currentBSDate.bs_year, currentBSDate.bs_month);
+    });
+
+    // Show/hide datepicker
+    input.addEventListener('click', () => {
+        const rect = input.getBoundingClientRect();
+        datepicker.style.top = `${rect.bottom + window.scrollY}px`;
+        datepicker.style.left = `${rect.left + window.scrollX}px`;
+        datepicker.style.display = 'block';
+        renderCalendar(currentBSDate.bs_year, currentBSDate.bs_month);
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!datepicker.contains(e.target) && e.target !== input) {
+            datepicker.style.display = 'none';
+        }
+    });
+
+    // Initial render
+    renderCalendar(currentBSDate.bs_year, currentBSDate.bs_month);
 }

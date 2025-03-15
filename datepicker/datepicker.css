@@ -1,32 +1,11 @@
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    line-height: 1.6;
-    color: #333;
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
+    margin: 20px;
 }
 
 h1 {
     color: #2c3e50;
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-.converter-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: space-between;
-}
-
-.converter-box {
-    flex: 1;
-    min-width: 300px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
 }
 
 .form-group {
@@ -39,75 +18,77 @@ label {
     font-weight: 600;
 }
 
-input, select {
-    width: 100%;
+input[type="text"] {
     padding: 8px;
     border: 1px solid #ddd;
     border-radius: 4px;
-    box-sizing: border-box;
-}
-
-button {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 4px;
+    width: 200px;
     cursor: pointer;
-    font-size: 16px;
-}
-
-button:hover {
-    background-color: #45a049;
 }
 
 .result {
-    margin-top: 20px;
-    padding: 15px;
+    margin-top: 15px;
+    padding: 10px;
     background-color: #e8f5e9;
     border-radius: 4px;
-    font-weight: 500;
 }
 
-.today-info {
-    text-align: center;
-    margin: 20px 0;
-    padding: 10px;
-    background-color: #e3f2fd;
+.bs-datepicker {
+    position: absolute;
+    background: white;
+    border: 1px solid #ddd;
     border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 10px;
+    z-index: 1000;
 }
 
-.calendar {
-    margin-top: 30px;
-}
-
-.calendar h3 {
+.datepicker-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 10px;
 }
 
-.calendar-controls {
-    margin-bottom: 15px;
+.datepicker-header button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    font-size: 14px;
 }
 
-.calendar-controls select,
-.calendar-controls input {
-    margin-right: 10px;
+.datepicker-header button:hover {
+    color: #4CAF50;
 }
 
-table {
-    width: 100%;
+.month-year {
+    font-weight: 600;
+}
+
+.datepicker-table {
     border-collapse: collapse;
-    margin-top: 10px;
 }
 
-th, td {
-    padding: 10px;
+.datepicker-table th,
+.datepicker-table td {
+    width: 30px;
+    height: 30px;
     text-align: center;
     border: 1px solid #ddd;
 }
 
-th {
+.datepicker-table th {
     background-color: #f2f2f2;
+    font-weight: 600;
+}
+
+.datepicker-table td {
+    cursor: pointer;
+}
+
+.datepicker-table td:hover:not(.other-month) {
+    background-color: #f0f0f0;
 }
 
 .current-day {
@@ -118,4 +99,5 @@ th {
 
 .other-month {
     color: #aaa;
+    cursor: default;
 }
