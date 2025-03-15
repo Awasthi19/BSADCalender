@@ -57,9 +57,7 @@ def get_gregorian_date(year, month, day):
         }
         parts = result.replace(",", "").split()  # ["15", "March", "2025"]
         gregorian_day = int(parts[0])
-        gregorian_month = month_names[parts[1]]
-        gregorian_year = int(parts[2])
-        return [gregorian_year, gregorian_month, gregorian_day]
+        return gregorian_day  # Return only the day
 
     except TimeoutException:
         print(f"Timeout waiting for result-date for {year}-{month}-{day}.")
@@ -70,28 +68,28 @@ def get_gregorian_date(year, month, day):
 
 # Generate the bsadMapping
 bsad_mapping = {}
-for year in range(2078, 2088):  # Only 2079 for this example
-    bsad_mapping[year] = {}
+for year in range(2000, 2089):
+    days = []
     for month in range(1, 13):
-        gregorian_date = get_gregorian_date(year, month, 1)
-        if gregorian_date:
-            bsad_mapping[year][month] = gregorian_date
+        gregorian_day = get_gregorian_date(year, month, 1)
+        if gregorian_day is not None:
+            days.append(gregorian_day)
         else:
             print(f"Skipping {year}-{month} due to error.")
+            days.append(None)  # Placeholder for missing data
         time.sleep(2)  # Delay to avoid overwhelming the server
+    bsad_mapping[year] = days
 
 # Close the driver
 driver.quit()
 
-# Format the result as a JavaScript object without comments
+# Format the result as a JavaScript object in the simplified format
 def format_js_object(mapping):
     js_string = "const bsadMapping = {\n"
     for year in mapping:
-        js_string += f"    {year}: {{\n"
-        for month in mapping[year]:
-            y, m, d = mapping[year][month]
-            js_string += f"        {month}: [{y}, {m}, {d}],\n"
-        js_string += "    },\n"
+        days = mapping[year]
+        days_str = ", ".join(str(day) if day is not None else "null" for day in days)
+        js_string += f"    {year}: [{days_str}],\n"
     js_string += "};"
     return js_string
 
