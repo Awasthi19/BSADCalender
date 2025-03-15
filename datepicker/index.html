@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Datepicker - Bikram Sambat / AD Converter</title>
+    <link rel="stylesheet" href="datepicker.css">
+</head>
+<body>
+    <h1>Bikram Sambat / AD Date Converter</h1>
+    
+    <div class="today-info" id="today-info">
+        Loading today's date...
+    </div>
+    
+    <div class="converter-container">
+        <div class="converter-box">
+            <h2>BS to AD Conversion</h2>
+            <div class="form-group">
+                <label for="bs-year">BS Year:</label>
+                <input type="number" id="bs-year" min="2000" max="2088" value="2081">
+            </div>
+            <div class="form-group">
+                <label for="bs-month">BS Month:</label>
+                <select id="bs-month">
+                    <option value="1">Baisakh (1)</option>
+                    <option value="2">Jestha (2)</option>
+                    <option value="3">Ashadh (3)</option>
+                    <option value="4">Shrawan (4)</option>
+                    <option value="5">Bhadra (5)</option>
+                    <option value="6">Ashwin (6)</option>
+                    <option value="7">Kartik (7)</option>
+                    <option value="8">Mangsir (8)</option>
+                    <option value="9">Poush (9)</option>
+                    <option value="10">Magh (10)</option>
+                    <option value="11">Falgun (11)</option>
+                    <option value="12">Chaitra (12)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="bs-day">BS Day:</label>
+                <input type="number" id="bs-day" min="1" max="32" value="1">
+            </div>
+            <button onclick="convertBStoAD()">Convert BS to AD</button>
+            <div id="bs-to-ad-result" class="result" style="display: none;"></div>
+        </div>
+        
+        <div class="converter-box">
+            <h2>AD to BS Conversion</h2>
+            <div class="form-group">
+                <label for="ad-date">AD Date:</label>
+                <input type="date" id="ad-date">
+            </div>
+            <button onclick="convertADtoBS()">Convert AD to BS</button>
+            <div id="ad-to-bs-result" class="result" style="display: none;"></div>
+        </div>
+    </div>
+    
+    <script src="datepicker.js"></script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BS Calendar</title>
+    <link rel="stylesheet" href="datepicker.css">
+</head>
+<body>
+    <div class="calendar" id="bs-calendar">
+        <h3 id="calendar-title">BS Calendar</h3>
+        <div class="calendar-controls">
+            <select id="bs-month">
+                <option value="1">Baisakh (1)</option>
+                <option value="2">Jestha (2)</option>
+                <option value="3">Ashadh (3)</option>
+                <option value="4">Shrawan (4)</option>
+                <option value="5">Bhadra (5)</option>
+                <option value="6">Ashwin (6)</option>
+                <option value="7">Kartik (7)</option>
+                <option value="8">Mangsir (8)</option>
+                <option value="9">Poush (9)</option>
+                <option value="10">Magh (10)</option>
+                <option value="11">Falgun (11)</option>
+                <option value="12">Chaitra (12)</option>
+            </select>
+            <input type="number" id="bs-year" min="2000" max="2088" value="2081">
+        </div>
+        <table id="calendar-table">
+            <thead>
+                <tr>
+                    <th>Sun</th>
+                    <th>Mon</th>
+                    <th>Tue</th>
+                    <th>Wed</th>
+                    <th>Thu</th>
+                    <th>Fri</th>
+                    <th>Sat</th>
+                </tr>
+            </thead>
+            <tbody id="calendar-body">
+                <!-- Calendar will be generated here -->
+            </tbody>
+        </table>
+    </div>
+    <script src="datepicker.js"></script>
+</body>
+</html>
