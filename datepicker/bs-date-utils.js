@@ -130,7 +130,7 @@ function adToBS(adDate) {
         for (let bs_month = 1; bs_month <= 12; bs_month++) {
             const bsMonthStartInAD = getADDateFromBSData(bs_year, bs_month, 1);
             let nextMonth = bs_month % 12 + 1;
-            let nextYear = bs_month < 12 ? parseInt(bs_year) : parseInt(bs_year) + 1;
+            let nextYear = bs_month < 12 ? parseInt(bs_year) : parseInt(bs_year) + 1 ;
             let bsMonthEndInAD;
             if (bsadMapping[nextYear] && bsadMapping[nextYear][nextMonth - 1]) {
                 bsMonthEndInAD = getADDateFromBSData(nextYear, nextMonth, 1);
@@ -153,115 +153,14 @@ function adToBS(adDate) {
     return null;
 }
 
-function initializeBSDatepicker(inputId, callback) {
-    const input = document.getElementById(inputId);
-    if (!input) return;
-
-    // Create datepicker container
-    const template = document.createElement('template');
-    template.innerHTML = document.querySelector('link[rel="import"]')?.import?.body.innerHTML || 
-        document.querySelector('script[type="text/html"]')?.textContent || 
-        '<div class="bs-datepicker" style="display: none;">' +
-        '<div class="datepicker-header">' +
-        '<button class="prev-year">&lt;&lt;</button>' +
-        '<button class="prev-month">&lt;</button>' +
-        '<span class="month-year"></span>' +
-        '<button class="next-month">&gt;</button>' +
-        '<button class="next-year">&gt;&gt;</button>' +
-        '</div>' +
-        '<table class="datepicker-table">' +
-        '<thead><tr><th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th></tr></thead>' +
-        '<tbody class="datepicker-body"></tbody>' +
-        '</table></div>';
-    
-    const datepicker = template.content.firstChild.cloneNode(true);
-    document.body.appendChild(datepicker);
-
-    let currentBSDate = adToBS(new Date()) || { bs_year: 2081, bs_month: 1, bs_day: 1 };
-    
-    function renderCalendar(bs_year, bs_month) {
-        const monthYear = datepicker.querySelector('.month-year');
-        monthYear.textContent = `${bsMonthNames[bs_month-1]} ${bs_year}`;
-        
-        const tbody = datepicker.querySelector('.datepicker-body');
-        tbody.innerHTML = '';
-        
-        const startDate = getADDateFromBSData(bs_year, bs_month, 1);
-        const daysInMonth = getDaysInBSMonth(bs_month, bs_year);
-        const startDay = startDate.getDay();
-        
-        let dayCount = 1;
-        for (let i = 0; i < 6 && dayCount <= daysInMonth; i++) {
-            const row = document.createElement('tr');
-            for (let j = 0; j < 7; j++) {
-                const cell = document.createElement('td');
-                if ((i === 0 && j < startDay) || dayCount > daysInMonth) {
-                    cell.className = 'other-month';
-                } else {
-                    cell.textContent = dayCount;
-                    cell.className = dayCount === currentBSDate.bs_day && 
-                                   bs_month === currentBSDate.bs_month && 
-                                   bs_year === currentBSDate.bs_year ? 'current-day' : '';
-                    let currentDay = dayCount; // Capture the current day value
-                    cell.addEventListener('click', () => {
-                        currentBSDate = { bs_year, bs_month, bs_day: currentDay };
-                        const adDate = bsToAD(bs_year, bs_month, currentDay);
-                        input.value = `${bs_year}-${String(bs_month).padStart(2, '0')}-${String(currentDay).padStart(2, '0')}`;
-                        datepicker.style.display = 'none';
-                        if (callback) callback({ ...currentBSDate, adDate });
-                    });
-                    dayCount++;
-                }
-                row.appendChild(cell);
-            }
-            tbody.appendChild(row);
-        }
-    }
-
-    // Navigation
-    datepicker.querySelector('.prev-year').addEventListener('click', () => {
-        currentBSDate.bs_year--;
-        renderCalendar(currentBSDate.bs_year, currentBSDate.bs_month);
-    });
-
-    datepicker.querySelector('.next-year').addEventListener('click', () => {
-        currentBSDate.bs_year++;
-        renderCalendar(currentBSDate.bs_year, currentBSDate.bs_month);
-    });
-
-    datepicker.querySelector('.prev-month').addEventListener('click', () => {
-        currentBSDate.bs_month--;
-        if (currentBSDate.bs_month < 1) {
-            currentBSDate.bs_month = 12;
-            currentBSDate.bs_year--;
-        }
-        renderCalendar(currentBSDate.bs_year, currentBSDate.bs_month);
-    });
-
-    datepicker.querySelector('.next-month').addEventListener('click', () => {
-        currentBSDate.bs_month++;
-        if (currentBSDate.bs_month > 12) {
-            currentBSDate.bs_month = 1;
-            currentBSDate.bs_year++;
-        }
-        renderCalendar(currentBSDate.bs_year, currentBSDate.bs_month);
-    });
-
-    // Show/hide datepicker
-    input.addEventListener('click', () => {
-        const rect = input.getBoundingClientRect();
-        datepicker.style.top = `${rect.bottom + window.scrollY}px`;
-        datepicker.style.left = `${rect.left + window.scrollX}px`;
-        datepicker.style.display = 'block';
-        renderCalendar(currentBSDate.bs_year, currentBSDate.bs_month);
-    });
-
-    document.addEventListener('click', (e) => {
-        if (!datepicker.contains(e.target) && e.target !== input) {
-            datepicker.style.display = 'none';
-        }
-    });
-
-    // Initial render
-    renderCalendar(currentBSDate.bs_year, currentBSDate.bs_month);
+// Export for use in other files (if using modules)
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        bsadMapping,
+        bsMonthNames,
+        getADDateFromBSData,
+        getDaysInBSMonth,
+        bsToAD,
+        adToBS
+    };
 }
