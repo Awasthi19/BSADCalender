@@ -68,8 +68,8 @@ input[type="text"]:focus {
   box-shadow: 0 4px 12px rgba(0,0,0,0.08), 0 0 1px rgba(0,0,0,0.1);
   z-index: 1000;
   width: 200px;
-  height: 250px;
-  padding: 2px;
+  height: 270px;
+  padding: 1px;
   overflow: hidden;
   animation: fadeIn 0.2s ease;
 }
@@ -103,7 +103,7 @@ input[type="text"]:focus {
 }
 
 .toggle-view:hover {
-  background-color: #f3f4f6;
+  background-color: #b7e1cd;
 }
 
 .month-year-text {
@@ -158,13 +158,13 @@ input[type="text"]:focus {
 }
 
 .nav-button:hover {
-  background-color: #f3f4f6;
+  background-color: #b7e1cd;
   color: #4f46e5;
 }
 
 /* Calendar view */
 .view-container {
-  height: calc(100% - 40px);
+  height: calc(100% - 60px);
 }
 
 .calendar-view, .year-month-view {
@@ -231,7 +231,7 @@ input[type="text"]:focus {
 }
 
 .datepicker-table td:hover:not(.other-month)::after {
-  background-color: #f3f4f6;
+  background-color: #b7e1cd;
 }
 
 .datepicker-table td.current-day {
@@ -240,7 +240,7 @@ input[type="text"]:focus {
 }
 
 .datepicker-table td.current-day::after {
-  background-color: #4f46e5;
+  background-color: #4caf50;
 }
 
 .other-month {
@@ -281,5 +281,31 @@ input[type="text"]:focus {
 }
 
 .year-item:hover, .month-item:hover {
-  background-color: #f3f4f6;
+  background-color: #b7e1cd;
 }
+
+
+/* Add styles for the footer */
+.datepicker-footer {
+  display: flex;
+  gap: 60px;
+  justify-content: center;
+
+}
+
+.datepicker-footer button {
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  color:#4caf50;
+  border-radius: 4px;
+
+}
+
+.datepicker-footer button:hover {
+  background-color: #b7e1cd;
+}
+
